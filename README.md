@@ -1,6 +1,6 @@
 # D&D Monster Manager
 
-A comprehensive web application for Dungeon Masters to manage their D&D campaigns, including encounters, monsters, NPCs, and loot.
+A comprehensive web application for Dungeon Masters to manage their D&D campaigns, including encounters, monsters, NPCs, and loot tracking.
 
 ## Features
 
@@ -9,16 +9,19 @@ A comprehensive web application for Dungeon Masters to manage their D&D campaign
 - **Monster Database**: Track and customize monsters
 - **NPC Management**: Create and manage NPCs with detailed information
 - **Loot System**: Track items and treasures for encounters
-- **Modern UI**: Dark theme inspired by D&D Beyond
+- **OCR Support**: Import character sheets and monster stats using OCR
+- **PDF Export**: Generate campaign and encounter reports
 
-## Technologies Used
+## Technologies
 
 - **Backend**: Python/Flask
-- **Database**: SQLite/SQLAlchemy
+- **Database**: SQLite (development) / PostgreSQL (production)
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap
 - **Authentication**: Flask-Login
+- **OCR**: Tesseract, PDF processing with pdfkit
+- **Deployment**: Gunicorn, Nginx
 
-## Installation
+## Local Development Setup
 
 1. Clone the repository:
    ```bash
@@ -26,7 +29,7 @@ A comprehensive web application for Dungeon Masters to manage their D&D campaign
    cd dd-monster-manager
    ```
 
-2. Create a virtual environment:
+2. Create and activate a virtual environment:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -37,17 +40,118 @@ A comprehensive web application for Dungeon Masters to manage their D&D campaign
    pip install -r requirements.txt
    ```
 
-4. Initialize the database:
+4. Set up environment variables (create .env file):
+   ```
+   SECRET_KEY=your-secret-key
+   FLASK_APP=wsgi.py
+   FLASK_ENV=development
+   DATABASE_URL=sqlite:///app.db
+   ```
+
+5. Initialize the database:
    ```bash
    flask db upgrade
    ```
 
-5. Run the application:
+6. Run the development server:
    ```bash
    flask run
    ```
 
-6. Open your browser and navigate to `http://localhost:5000`
+## Production Deployment
+
+### Prerequisites
+
+- Ubuntu 22.04 LTS server
+- Domain name pointing to your server
+- Python 3.8+
+- PostgreSQL
+- Nginx
+- SSL certificate (Let's Encrypt)
+
+### Server Setup
+
+1. Install required packages:
+   ```bash
+   sudo apt update
+   sudo apt install python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools python3-venv nginx postgresql postgresql-contrib
+   ```
+
+2. Create PostgreSQL database:
+   ```sql
+   CREATE DATABASE ddmonsters;
+   CREATE USER ddmonster_user WITH PASSWORD 'your_password';
+   GRANT ALL PRIVILEGES ON DATABASE ddmonsters TO ddmonster_user;
+   ```
+
+3. Set up application:
+   ```bash
+   # Create application directory
+   sudo mkdir /var/www/ddmonsters
+   sudo chown $USER:$USER /var/www/ddmonsters
+
+   # Clone repository and setup
+   git clone https://github.com/yourusername/ddmonsters.git /var/www/ddmonsters
+   cd /var/www/ddmonsters
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+4. Configure Gunicorn service:
+   ```bash
+   sudo nano /etc/systemd/system/ddmonsters.service
+   ```
+   Add:
+   ```ini
+   [Unit]
+   Description=DD Monsters Gunicorn Service
+   After=network.target
+
+   [Service]
+   User=www-data
+   Group=www-data
+   WorkingDirectory=/var/www/ddmonsters
+   Environment="PATH=/var/www/ddmonsters/venv/bin"
+   EnvironmentFile=/var/www/ddmonsters/.env
+   ExecStart=/var/www/ddmonsters/venv/bin/gunicorn -c gunicorn_config.py wsgi:app
+
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+5. Configure Nginx:
+   ```bash
+   sudo nano /etc/nginx/sites-available/ddmonsters
+   ```
+   Use the provided nginx_config file content.
+
+6. Enable site and SSL:
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/ddmonsters /etc/nginx/sites-enabled/
+   sudo certbot --nginx -d your-domain.com
+   ```
+
+7. Start services:
+   ```bash
+   sudo systemctl start ddmonsters
+   sudo systemctl enable ddmonsters
+   sudo systemctl restart nginx
+   ```
+
+## OCR Setup
+
+The application includes OCR capabilities for importing character sheets and monster stats. Requirements:
+
+- Tesseract OCR engine
+- PDF processing tools (wkhtmltopdf)
+- Optional: OpenCV and NumPy for enhanced OCR
+
+Install additional OCR dependencies:
+```bash
+# On Ubuntu/Debian:
+sudo apt install tesseract-ocr wkhtmltopdf
+```
 
 ## Project Structure
 
@@ -62,8 +166,16 @@ dd-monster-manager/
 ├── migrations/         # Database migrations
 ├── tests/             # Test files
 ├── config.py          # Configuration
-├── requirements.txt   # Project dependencies
-└── README.md         # This file
+├── gunicorn_config.py # Gunicorn settings
+├── wsgi.py           # WSGI entry point
+└── requirements.txt   # Dependencies
+```
+
+## Testing
+
+Run the test suite:
+```bash
+python -m pytest
 ```
 
 ## Contributing

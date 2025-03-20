@@ -1,0 +1,271 @@
+/* D&D Beyond Theme Variables */
+:root {
+    --ddb-red: #E40712;
+    --ddb-dark-red: #B30000;
+    --ddb-black: #1A1A1A;
+    --ddb-darker-gray: #242527;
+    --ddb-dark-gray: #383838;
+    --ddb-gray: #666666;
+    --ddb-light-gray: #CCCCCC;
+    --ddb-white: #FFFFFF;
+    --ddb-off-white: #F9F9F9;
+    --ddb-gold: #B89B46;
+    --ddb-light-gold: #E4D5B5;
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Global Styles */
+body {
+    background-color: var(--ddb-darker-gray);
+    color: var(--ddb-white);
+    font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: var(--ddb-black);
+    box-shadow: 0 2px 4px var(--shadow-color);
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--ddb-red);
+}
+
+.navbar-brand {
+    color: var(--ddb-white);
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand:hover {
+    color: var(--ddb-red);
+}
+
+.nav-link {
+    color: var(--ddb-white);
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: var(--ddb-red);
+}
+
+/* Content Container */
+.container {
+    background-color: var(--ddb-dark-gray);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 6px var(--shadow-color);
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* Card Styling */
+.card {
+    background-color: var(--ddb-darker-gray);
+    border: 1px solid var(--ddb-gray);
+    border-radius: 6px;
+    box-shadow: 0 3px 5px var(--shadow-color);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.card-header {
+    background-color: var(--ddb-black);
+    color: var(--ddb-white);
+    font-weight: 600;
+    border-bottom: 2px solid var(--ddb-red);
+}
+
+.card-body {
+    color: var(--ddb-white);
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: var(--ddb-red);
+    border-color: var(--ddb-dark-red);
+    color: var(--ddb-white);
+    font-weight: 600;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    transition: all 0.2s;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--ddb-dark-red);
+    border-color: var(--ddb-dark-red);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.btn-secondary {
+    background-color: var(--ddb-gray);
+    border-color: var(--ddb-dark-gray);
+    color: var(--ddb-white);
+    font-weight: 600;
+}
+
+.btn-secondary:hover, .btn-secondary:focus {
+    background-color: var(--ddb-dark-gray);
+    border-color: var(--ddb-darker-gray);
+}
+
+/* Form Controls */
+.form-control, .form-select {
+    background-color: var(--ddb-black);
+    border: 1px solid var(--ddb-gray);
+    color: var(--ddb-white);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--ddb-black);
+    border-color: var(--ddb-red);
+    color: var(--ddb-white);
+    box-shadow: 0 0 0 0.25rem rgba(228, 7, 18, 0.25);
+}
+
+.form-label {
+    color: var(--ddb-light-gray);
+    font-weight: 500;
+}
+
+/* Table Styling */
+table {
+    background-color: var(--ddb-darker-gray);
+    border: 1px solid var(--ddb-gray);
+}
+
+thead {
+    background-color: var(--ddb-black);
+    color: var(--ddb-white);
+}
+
+th {
+    border-bottom: 2px solid var(--ddb-red);
+}
+
+td {
+    color: var(--ddb-white);
+    border-bottom: 1px solid var(--ddb-gray);
+}
+
+tr:hover td {
+    background-color: var(--ddb-dark-gray);
+}
+
+/* Alert Styling */
+.alert-success {
+    background-color: rgba(40, 167, 69, 0.2);
+    border-color: #28a745;
+    color: var(--ddb-white);
+}
+
+.alert-danger {
+    background-color: rgba(228, 7, 18, 0.2);
+    border-color: var(--ddb-red);
+    color: var(--ddb-white);
+}
+
+/* Monster Stats */
+.monster-stat-block {
+    background-color: var(--ddb-darker-gray);
+    border: 2px solid var(--ddb-red);
+    color: var(--ddb-white);
+}
+
+.monster-name {
+    color: var(--ddb-red);
+    font-weight: 700;
+}
+
+/* NPC Badges */
+.badge.bg-friendly { background-color: #28a745; }
+.badge.bg-neutral { background-color: var(--ddb-gold); }
+.badge.bg-hostile { background-color: var(--ddb-red); }
+
+/* Links */
+a {
+    color: var(--ddb-red);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--ddb-dark-red);
+    text-decoration: underline;
+}
+
+/* List Groups */
+.list-group-item {
+    background-color: var(--ddb-darker-gray);
+    border-color: var(--ddb-gray);
+    color: var(--ddb-white);
+}
+
+.list-group-item:hover {
+    background-color: var(--ddb-dark-gray);
+}
+
+.list-group-item-action {
+    color: var(--ddb-white);
+}
+
+.list-group-item-action:hover {
+    color: var(--ddb-white);
+    background-color: var(--ddb-dark-gray);
+}
+
+/* Text Colors */
+.text-muted {
+    color: var(--ddb-light-gray) !important;
+}
+
+/* Page Titles */
+h1, h2, h3 {
+    color: var(--ddb-white);
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 2.2rem;
+    border-bottom: 2px solid var(--ddb-gold);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+}
+
+/* Special Elements */
+.scroll-container {
+    background-color: var(--ddb-darker-gray);
+    border: 2px solid var(--ddb-gray);
+    border-radius: 8px;
+    position: relative;
+    padding: 30px;
+    margin: 20px 0;
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.scroll-container::before, .scroll-container::after {
+    content: '';
+    position: absolute;
+    height: 30px;
+    width: 100%;
+    left: 0;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+.scroll-container::before {
+    top: 0;
+    background-image: radial-gradient(ellipse at center, var(--ddb-dark-gray) 0%, transparent 70%);
+}
+
+.scroll-container::after {
+    bottom: 0;
+    background-image: radial-gradient(ellipse at center, var(--ddb-dark-gray) 0%, transparent 70%);
+} 

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Player - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2>Add New Player to {{ campaign.title }}</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Character Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="character_class" class="form-label">Character Class</label>
+                        <input type="text" class="form-control" id="character_class" name="character_class">
+                    </div>
+                    <div class="mb-3">
+                        <label for="level" class="form-label">Level</label>
+                        <input type="number" class="form-control" id="level" name="level" value="1" min="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('players.list', campaign_id=campaign.id) }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Add Player</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

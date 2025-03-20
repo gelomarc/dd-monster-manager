@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="text-center">Welcome to DD Monsters</h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <p class="lead">Your ultimate campaign management system</p>
+                    <hr>
+                    <p>Please login or register to manage your campaigns.</p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 text-center">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg">Login</a>
+                    </div>
+                    <div class="col-md-6 text-center">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg">Register</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Edit' if npc else 'Add' }} NPC - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ 'Edit' if npc else 'Add' }} NPC</h1>
+        <p class="text-muted">Campaign: {{ campaign.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ npc.name if npc else '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Role *</label>
+                        <input type="text" class="form-control" id="role" name="role" value="{{ npc.role if npc else '' }}" required>
+                        <div class="form-text">The NPC's occupation or role in the world (e.g., Merchant, Guard Captain, Court Wizard)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="attitude" class="form-label">Attitude *</label>
+                        <select class="form-select" id="attitude" name="attitude" required>
+                            <option value="friendly" {{ 'selected' if npc and npc.attitude == 'friendly' else '' }}>Friendly</option>
+                            <option value="neutral" {{ 'selected' if not npc or (npc and npc.attitude == 'neutral') else '' }}>Neutral</option>
+                            <option value="hostile" {{ 'selected' if npc and npc.attitude == 'hostile' else '' }}>Hostile</option>
+                        </select>
+                        <div class="form-text">The NPC's general disposition towards the party</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="places_to_find" class="form-label">Places to Find</label>
+                        <textarea class="form-control" id="places_to_find" name="places_to_find" rows="2">{{ npc.places_to_find if npc else '' }}</textarea>
+                        <div class="form-text">Where the party might encounter this NPC (e.g., "The Rusty Sword Tavern, Market Square")</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ npc.description if npc else '' }}</textarea>
+                        <div class="form-text">Physical appearance, mannerisms, and personality traits</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="equipment" class="form-label">Equipment</label>
+                        <textarea class="form-control" id="equipment" name="equipment" rows="2">{{ npc.equipment if npc else '' }}</textarea>
+                        <div class="form-text">Notable items, weapons, or magical equipment the NPC carries</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save NPC
+                    </button>
+                    <a href="{{ url_for('npcs.list', campaign_id=campaign.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Give NPCs memorable names and distinct personalities</li>
+                    <li>Consider how their role affects their interactions</li>
+                    <li>Note any specific accents or speech patterns</li>
+                    <li>Include equipment that might be relevant to interactions</li>
+                    <li>List multiple locations where the party might find them</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

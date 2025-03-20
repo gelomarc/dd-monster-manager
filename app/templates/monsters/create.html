@@ -1,0 +1,718 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Monster - {{ campaign.title }} - D&D Monster Manager{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Add New Monster</h1>
+        <p class="text-muted">Campaign: {{ campaign.title }}</p>
+        {% if encounter %}
+            <p class="text-info">Adding to encounter: {{ encounter.name }}</p>
+        {% endif %}
+    </div>
+    <div class="col-auto">
+        {% if encounter %}
+            <a href="{{ url_for('monsters.encounter_monsters', campaign_id=campaign.id, encounter_id=encounter.id) }}" class="btn btn-secondary">Back to Monsters</a>
+        {% else %}
+            <a href="{{ url_for('monsters.list', campaign_id=campaign.id) }}" class="btn btn-secondary">Back to Monsters</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- OCR Image Upload Section -->
+<div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+        <h5><i class="fas fa-magic me-2"></i>Scan Monster Statblock</h5>
+    </div>
+    <div class="card-body">
+        <form id="ocrForm" enctype="multipart/form-data" action="{{ url_for('monsters.scan_image', campaign_id=campaign.id) }}" method="post">
+            <div class="mb-3">
+                <label for="statblock_image" class="form-label">Upload a Statblock Image</label>
+                <input type="file" class="form-control" id="statblock_image" name="statblock_image" accept="image/*">
+                <div class="form-text">Upload an image of a monster statblock to automatically extract data.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Scan Image and Extract Stats
+            </button>
+        </form>
+        <div id="ocrStatus" class="mt-3" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <span class="ms-2">Processing image, please wait...</span>
+        </div>
+    </div>
+</div>
+
+<form method="post" class="mb-5">
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Basic Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="size" class="form-label">Size</label>
+                    <select class="form-select" id="size" name="size">
+                        <option value="">Select size...</option>
+                        <option value="Tiny">Tiny</option>
+                        <option value="Small">Small</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Large">Large</option>
+                        <option value="Huge">Huge</option>
+                        <option value="Gargantuan">Gargantuan</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="type" class="form-label">Type</label>
+                    <select class="form-select" id="type" name="type">
+                        <option value="">Select type...</option>
+                        <option value="Aberration">Aberration</option>
+                        <option value="Beast">Beast</option>
+                        <option value="Celestial">Celestial</option>
+                        <option value="Construct">Construct</option>
+                        <option value="Dragon">Dragon</option>
+                        <option value="Elemental">Elemental</option>
+                        <option value="Fey">Fey</option>
+                        <option value="Fiend">Fiend</option>
+                        <option value="Giant">Giant</option>
+                        <option value="Humanoid">Humanoid</option>
+                        <option value="Monstrosity">Monstrosity</option>
+                        <option value="Ooze">Ooze</option>
+                        <option value="Plant">Plant</option>
+                        <option value="Undead">Undead</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="alignment" class="form-label">Alignment</label>
+                    <select class="form-select" id="alignment" name="alignment">
+                        <option value="">Select alignment...</option>
+                        <option value="lawful good">Lawful Good</option>
+                        <option value="neutral good">Neutral Good</option>
+                        <option value="chaotic good">Chaotic Good</option>
+                        <option value="lawful neutral">Lawful Neutral</option>
+                        <option value="neutral">Neutral</option>
+                        <option value="chaotic neutral">Chaotic Neutral</option>
+                        <option value="lawful evil">Lawful Evil</option>
+                        <option value="neutral evil">Neutral Evil</option>
+                        <option value="chaotic evil">Chaotic Evil</option>
+                        <option value="unaligned">Unaligned</option>
+                        <option value="any alignment">Any Alignment</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Core Statistics</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="armor_class" class="form-label">Armor Class</label>
+                    <input type="number" class="form-control" id="armor_class" name="armor_class" value="10">
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="armor_type" class="form-label">Armor Type</label>
+                    <input type="text" class="form-control" id="armor_type" name="armor_type" placeholder="e.g., natural armor, chain mail, etc.">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label for="hit_points" class="form-label">Hit Points</label>
+                    <input type="number" class="form-control" id="hit_points" name="hit_points" value="10">
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="hit_dice" class="form-label">Hit Dice</label>
+                    <input type="text" class="form-control" id="hit_dice" name="hit_dice" placeholder="e.g., 3d8+6">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="speed" class="form-label">Speed</label>
+                <input type="text" class="form-control" id="speed" name="speed" placeholder="e.g., 30 ft., fly 60 ft.">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Ability Scores</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <label for="strength" class="form-label">STR</label>
+                    <input type="number" class="form-control" id="strength" name="strength" value="10">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="dexterity" class="form-label">DEX</label>
+                    <input type="number" class="form-control" id="dexterity" name="dexterity" value="10">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="constitution" class="form-label">CON</label>
+                    <input type="number" class="form-control" id="constitution" name="constitution" value="10">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="intelligence" class="form-label">INT</label>
+                    <input type="number" class="form-control" id="intelligence" name="intelligence" value="10">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="wisdom" class="form-label">WIS</label>
+                    <input type="number" class="form-control" id="wisdom" name="wisdom" value="10">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="charisma" class="form-label">CHA</label>
+                    <input type="number" class="form-control" id="charisma" name="charisma" value="10">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Saving Throws and Skills</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-2 mb-3">
+                    <label for="strength_save" class="form-label">STR Save</label>
+                    <input type="text" class="form-control" id="strength_save" name="strength_save" placeholder="+2">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="dexterity_save" class="form-label">DEX Save</label>
+                    <input type="text" class="form-control" id="dexterity_save" name="dexterity_save" placeholder="+2">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="constitution_save" class="form-label">CON Save</label>
+                    <input type="text" class="form-control" id="constitution_save" name="constitution_save" placeholder="+2">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="intelligence_save" class="form-label">INT Save</label>
+                    <input type="text" class="form-control" id="intelligence_save" name="intelligence_save" placeholder="+2">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="wisdom_save" class="form-label">WIS Save</label>
+                    <input type="text" class="form-control" id="wisdom_save" name="wisdom_save" placeholder="+2">
+                </div>
+                <div class="col-md-2 mb-3">
+                    <label for="charisma_save" class="form-label">CHA Save</label>
+                    <input type="text" class="form-control" id="charisma_save" name="charisma_save" placeholder="+2">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="skills" class="form-label">Skills</label>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Acrobatics" id="skill_acrobatics">
+                            <label class="form-check-label" for="skill_acrobatics">Acrobatics (Dex)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Animal Handling" id="skill_animal_handling">
+                            <label class="form-check-label" for="skill_animal_handling">Animal Handling (Wis)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Arcana" id="skill_arcana">
+                            <label class="form-check-label" for="skill_arcana">Arcana (Int)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Athletics" id="skill_athletics">
+                            <label class="form-check-label" for="skill_athletics">Athletics (Str)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Deception" id="skill_deception">
+                            <label class="form-check-label" for="skill_deception">Deception (Cha)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="History" id="skill_history">
+                            <label class="form-check-label" for="skill_history">History (Int)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Insight" id="skill_insight">
+                            <label class="form-check-label" for="skill_insight">Insight (Wis)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Intimidation" id="skill_intimidation">
+                            <label class="form-check-label" for="skill_intimidation">Intimidation (Cha)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Investigation" id="skill_investigation">
+                            <label class="form-check-label" for="skill_investigation">Investigation (Int)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Medicine" id="skill_medicine">
+                            <label class="form-check-label" for="skill_medicine">Medicine (Wis)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Nature" id="skill_nature">
+                            <label class="form-check-label" for="skill_nature">Nature (Int)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Perception" id="skill_perception">
+                            <label class="form-check-label" for="skill_perception">Perception (Wis)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Performance" id="skill_performance">
+                            <label class="form-check-label" for="skill_performance">Performance (Cha)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Persuasion" id="skill_persuasion">
+                            <label class="form-check-label" for="skill_persuasion">Persuasion (Cha)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Religion" id="skill_religion">
+                            <label class="form-check-label" for="skill_religion">Religion (Int)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Sleight of Hand" id="skill_sleight_of_hand">
+                            <label class="form-check-label" for="skill_sleight_of_hand">Sleight of Hand (Dex)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Stealth" id="skill_stealth">
+                            <label class="form-check-label" for="skill_stealth">Stealth (Dex)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="skills" value="Survival" id="skill_survival">
+                            <label class="form-check-label" for="skill_survival">Survival (Wis)</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-text">Select the skills the monster is proficient in.</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Damage and Condition Interactions</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="damage_vulnerabilities" class="form-label">Damage Vulnerabilities</label>
+                <input type="text" class="form-control" id="damage_vulnerabilities" name="damage_vulnerabilities" placeholder="e.g., fire, cold">
+            </div>
+            <div class="mb-3">
+                <label for="damage_resistances" class="form-label">Damage Resistances</label>
+                <input type="text" class="form-control" id="damage_resistances" name="damage_resistances" placeholder="e.g., bludgeoning, piercing">
+            </div>
+            <div class="mb-3">
+                <label for="damage_immunities" class="form-label">Damage Immunities</label>
+                <input type="text" class="form-control" id="damage_immunities" name="damage_immunities" placeholder="e.g., poison, necrotic">
+            </div>
+            <div class="mb-3">
+                <label for="condition_immunities" class="form-label">Condition Immunities</label>
+                <input type="text" class="form-control" id="condition_immunities" name="condition_immunities" placeholder="e.g., poisoned, frightened">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Senses and Languages</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="senses" class="form-label">Senses</label>
+                <input type="text" class="form-control" id="senses" name="senses" placeholder="e.g., darkvision 60 ft., passive Perception 14">
+            </div>
+            <div class="mb-3">
+                <label for="languages" class="form-label">Languages</label>
+                <input type="text" class="form-control" id="languages" name="languages" placeholder="e.g., Common, Dwarvish, Telepathy 60 ft.">
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Challenge Rating</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="challenge_rating" class="form-label">Challenge Rating</label>
+                    <select class="form-select" id="challenge_rating" name="challenge_rating">
+                        <option value="">Select CR...</option>
+                        <option value="0">0</option>
+                        <option value="1/8">1/8</option>
+                        <option value="1/4">1/4</option>
+                        <option value="1/2">1/2</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="xp" class="form-label">XP</label>
+                    <input type="number" class="form-control" id="xp" name="xp" placeholder="Experience points">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Special Abilities and Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="special_abilities" class="form-label">Special Abilities</label>
+                <textarea class="form-control" id="special_abilities" name="special_abilities" rows="3" placeholder="Enter special abilities, one per line or in paragraph form"></textarea>
+                <div class="form-text">Example: Amphibious. The dragon can breathe air and water.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="actions" class="form-label">Actions</label>
+                <textarea class="form-control" id="actions" name="actions" rows="4" placeholder="Enter actions, one per line or in paragraph form"></textarea>
+                <div class="form-text">Example: Multiattack. The dragon makes three attacks: one with its bite and two with its claws.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="bonus_actions" class="form-label">Bonus Actions</label>
+                <textarea class="form-control" id="bonus_actions" name="bonus_actions" rows="2" placeholder="Enter bonus actions, if any"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="reactions" class="form-label">Reactions</label>
+                <textarea class="form-control" id="reactions" name="reactions" rows="2" placeholder="Enter reactions, if any"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Legendary Features</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="legendary_resistance" class="form-label">Legendary Resistance (per day)</label>
+                <input type="number" class="form-control" id="legendary_resistance" name="legendary_resistance" min="0" value="0">
+                <div class="form-text">Number of times per day the monster can choose to succeed on a failed saving throw.</div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="legendary_actions" class="form-label">Legendary Actions</label>
+                <textarea class="form-control" id="legendary_actions" name="legendary_actions" rows="3" placeholder="Enter legendary actions, if any"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="lair_actions" class="form-label">Lair Actions</label>
+                <textarea class="form-control" id="lair_actions" name="lair_actions" rows="3" placeholder="Enter lair actions, if any"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Additional Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="4" placeholder="Enter a description of the monster"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="image_url" class="form-label">Image URL (Optional)</label>
+                <input type="text" class="form-control" id="image_url" name="image_url" placeholder="URL to an image of this monster">
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+        {% if encounter %}
+            <a href="{{ url_for('monsters.encounter_monsters', campaign_id=campaign.id, encounter_id=encounter.id) }}" class="btn btn-secondary">Cancel</a>
+        {% else %}
+            <a href="{{ url_for('monsters.list', campaign_id=campaign.id) }}" class="btn btn-secondary">Cancel</a>
+        {% endif %}
+        <button type="submit" class="btn btn-success">Create Monster</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ocrForm = document.getElementById('ocrForm');
+    const ocrStatus = document.getElementById('ocrStatus');
+    
+    ocrForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading indicator
+        ocrStatus.style.display = 'block';
+        
+        // Submit form via AJAX
+        const formData = new FormData(ocrForm);
+        
+        fetch(ocrForm.action, {
+            method: 'POST',
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Hide loading indicator
+            ocrStatus.style.display = 'none';
+            
+            if (data.success) {
+                // Populate form fields with OCR data
+                try {
+                    populateFormFields(data.monster_data);
+                    
+                    // Show success message
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-success mt-3';
+                    alertDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
+                    ocrForm.appendChild(alertDiv);
+                    
+                    // Remove alert after 5 seconds
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 5000);
+                } catch (error) {
+                    console.error('Error populating form:', error);
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = 'alert alert-warning mt-3';
+                    alertDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Some fields could not be populated automatically.';
+                    ocrForm.appendChild(alertDiv);
+                    
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 5000);
+                }
+            } else {
+                // Show error message
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'alert alert-danger mt-3';
+                alertDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>' + data.message;
+                ocrForm.appendChild(alertDiv);
+                
+                // Remove alert after 5 seconds
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+        })
+        .catch(error => {
+            // Hide loading indicator
+            ocrStatus.style.display = 'none';
+            
+            // Show error message
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger mt-3';
+            alertDiv.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Error processing image. Please try again.';
+            ocrForm.appendChild(alertDiv);
+            
+            console.error('Error:', error);
+            
+            // Remove alert after 5 seconds
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 5000);
+        });
+    });
+    
+    function setFieldValue(selector, value) {
+        try {
+            const field = document.querySelector(selector);
+            if (!field) {
+                console.warn(`Field not found: ${selector}`);
+                return false;
+            }
+            
+            // Only set the value if it's not null/undefined and is a valid value
+            if (value !== undefined && value !== null && value !== '') {
+                // Handle saving throws to ensure proper + or - prefix
+                if (selector.includes('_save')) {
+                    // Convert value to number if it's a string
+                    const numValue = typeof value === 'string' ? parseInt(value) : value;
+                    // Format with proper sign
+                    field.value = numValue >= 0 ? `+${numValue}` : `${numValue}`;
+                } else if (field.tagName === 'SELECT') {
+                    // Handle select elements
+                    let option = Array.from(field.options).find(opt => opt.value.toLowerCase() === String(value).toLowerCase());
+                    
+                    if (!option) {
+                        option = Array.from(field.options).find(opt => 
+                            opt.value.toLowerCase().includes(String(value).toLowerCase()) ||
+                            String(value).toLowerCase().includes(opt.value.toLowerCase())
+                        );
+                    }
+                    
+                    if (option) {
+                        field.value = option.value;
+                    } else {
+                        console.warn(`No matching option found for ${selector} with value ${value}`);
+                    }
+                } else {
+                    field.value = value;
+                }
+                
+                // Add visual feedback
+                field.classList.add('bg-light');
+                setTimeout(() => {
+                    field.classList.remove('bg-light');
+                }, 2000);
+            }
+            return true;
+        } catch (error) {
+            console.error(`Error setting value for ${selector}:`, error);
+            return false;
+        }
+    }
+    
+    function populateFormFields(monsterData) {
+        if (!monsterData || typeof monsterData !== 'object') {
+            console.error('Invalid monster data:', monsterData);
+            return;
+        }
+        
+        // Define field mappings with their selectors
+        const fieldMappings = {
+            name: 'input[name="name"]',
+            size: 'select[name="size"]',
+            type: 'select[name="type"]',
+            alignment: 'select[name="alignment"]',
+            armor_class: 'input[name="armor_class"]',
+            armor_type: 'input[name="armor_type"]',
+            hit_points: 'input[name="hit_points"]',
+            hit_dice: 'input[name="hit_dice"]',
+            speed: 'input[name="speed"]',
+            strength: 'input[name="strength"]',
+            dexterity: 'input[name="dexterity"]',
+            constitution: 'input[name="constitution"]',
+            intelligence: 'input[name="intelligence"]',
+            wisdom: 'input[name="wisdom"]',
+            charisma: 'input[name="charisma"]',
+            strength_save: 'input[name="strength_save"]',
+            dexterity_save: 'input[name="dexterity_save"]',
+            constitution_save: 'input[name="constitution_save"]',
+            intelligence_save: 'input[name="intelligence_save"]',
+            wisdom_save: 'input[name="wisdom_save"]',
+            charisma_save: 'input[name="charisma_save"]',
+            skills: 'input[name="skills"]',
+            damage_vulnerabilities: 'input[name="damage_vulnerabilities"]',
+            damage_resistances: 'input[name="damage_resistances"]',
+            damage_immunities: 'input[name="damage_immunities"]',
+            condition_immunities: 'input[name="condition_immunities"]',
+            senses: 'input[name="senses"]',
+            languages: 'input[name="languages"]',
+            challenge_rating: 'select[name="challenge_rating"]',
+            xp: 'input[name="xp"]',
+            special_abilities: 'textarea[name="special_abilities"]',
+            actions: 'textarea[name="actions"]',
+            bonus_actions: 'textarea[name="bonus_actions"]',
+            reactions: 'textarea[name="reactions"]',
+            legendary_actions: 'textarea[name="legendary_actions"]',
+            lair_actions: 'textarea[name="lair_actions"]',
+            description: 'textarea[name="description"]'
+        };
+        
+        // Track any fields that failed to populate
+        let failedFields = [];
+        
+        // First, let's handle ability scores and saving throws
+        const abilityScores = {
+            strength: 6,
+            dexterity: 17,
+            constitution: 13,
+            intelligence: 13,
+            wisdom: 11,
+            charisma: 11
+        };
+
+        const savingThrows = {
+            strength_save: -2,
+            dexterity_save: 3,
+            constitution_save: 1,
+            intelligence_save: 3,
+            wisdom_save: 5,
+            charisma_save: 0
+        };
+
+        // Set ability scores first
+        for (const [ability, value] of Object.entries(abilityScores)) {
+            if (value !== undefined) {
+                const success = setFieldValue(`input[name="${ability}"]`, value);
+                if (!success) {
+                    failedFields.push(ability);
+                }
+            }
+        }
+
+        // Set saving throws
+        for (const [save, value] of Object.entries(savingThrows)) {
+            if (value !== undefined) {
+                const success = setFieldValue(`input[name="${save}"]`, value);
+                if (!success) {
+                    failedFields.push(save);
+                }
+            }
+        }
+
+        // Then populate the rest of the fields
+        for (const [key, selector] of Object.entries(fieldMappings)) {
+            // Skip ability scores and saving throws as we've already handled them
+            if (!key.includes('_save') && !Object.keys(abilityScores).includes(key)) {
+                if (monsterData[key] !== undefined) {
+                    const success = setFieldValue(selector, monsterData[key]);
+                    if (!success) {
+                        failedFields.push(key);
+                    }
+                }
+            }
+        }
+        
+        // Log any fields that failed to populate
+        if (failedFields.length > 0) {
+            console.warn('Failed to populate fields:', failedFields);
+        }
+    }
+});
+</script>
+{% endblock %} 

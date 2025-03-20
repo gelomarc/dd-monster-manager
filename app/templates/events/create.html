@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Event - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2>Add New Event to {{ campaign.title }}</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="event_date" class="form-label">Event Date/Time</label>
+                        <input type="text" class="form-control" id="event_date" name="event_date" placeholder="Day 10, Year 1245, etc.">
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('events.list', campaign_id=campaign.id) }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Add Event</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

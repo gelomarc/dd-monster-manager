@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}OCR Debug - D&D Monster Manager{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-bug me-2"></i>OCR Debug</h1>
+            <p class="text-muted">This page helps diagnose issues with OCR processing.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{{ url_for('monsters.list', campaign_id=request.view_args.campaign_id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Monsters
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5>Debug Images</h5>
+                </div>
+                <div class="card-body">
+                    {% if debug_images %}
+                        <div class="mb-4">
+                            {% if debug_images.original %}
+                                <h6>Original Image:</h6>
+                                <img src="{{ debug_images.original }}" class="img-fluid border rounded mb-3" alt="Original image">
+                            {% endif %}
+                            
+                            {% if debug_images.processed %}
+                                <h6>Processed Image:</h6>
+                                <img src="{{ debug_images.processed }}" class="img-fluid border rounded" alt="Processed image">
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>No debug images available. Try scanning an image first.
+                        </div>
+                    {% endif %}
+
+                    <h6>Tips for Better OCR Results:</h6>
+                    <ul>
+                        <li>Use high-contrast images with clear text</li>
+                        <li>Crop the image to include only the statblock</li>
+                        <li>Ensure the image is well-lit and not blurry</li>
+                        <li>PNG or high-quality JPEG formats work best</li>
+                        <li>Make sure Tesseract OCR is properly installed</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5>Log Output</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Last 50 lines of the log file:</p>
+                    <pre class="border p-3 bg-light" style="max-height: 500px; overflow-y: auto;"><code>{{ log_content }}</code></pre>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Manual OCR Test</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('monsters.scan_image', campaign_id=request.view_args.campaign_id) }}" method="post" enctype="multipart/form-data" id="debugOcrForm">
+                        <div class="mb-3">
+                            <label for="statblock_image" class="form-label">Upload Image to Test OCR</label>
+                            <input type="file" class="form-control" id="statblock_image" name="statblock_image" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Process Image
+                        </button>
+                    </form>
+                    
+                    <div class="mt-4" id="ocrResult" style="display: none;">
+                        <h6>OCR Result:</h6>
+                        <pre class="border p-3 bg-light" style="max-height: 300px; overflow-y: auto;"><code id="ocrText"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const debugOcrForm = document.getElementById('debugOcrForm');
+    const ocrResult = document.getElementById('ocrResult');
+    const ocrText = document.getElementById('ocrText');
+    
+    debugOcrForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(debugOcrForm);
+        
+        fetch(debugOcrForm.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            ocrResult.style.display = 'block';
+            
+            if (data.success) {
+                ocrText.innerHTML = 'Success!\n\n' + 
+                    'Raw Text:\n' + data.raw_text + '\n\n' +
+                    'Extracted Data:\n' + JSON.stringify(data.monster_data, null, 2);
+            } else {
+                ocrText.innerHTML = 'Error: ' + data.message + '\n\n' + 
+                    (data.raw_text ? 'Raw Text:\n' + data.raw_text : '');
+            }
+            
+            // Reload the page after 2 seconds to refresh images
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+        })
+        .catch(error => {
+            ocrResult.style.display = 'block';
+            ocrText.innerHTML = 'Error processing request: ' + error;
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Edit' if event else 'Add' }} Event - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ 'Edit' if event else 'Add' }} Event</h1>
+        <p class="text-muted">Campaign: {{ campaign.title }}</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post">
+            {{ form.csrf_token }}
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title *</label>
+                        {{ form.title(class="form-control", required=true) }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="event_date" class="form-label">Date</label>
+                        {{ form.event_date(class="form-control") }}
+                        <div class="form-text">The date when this event occurs (e.g., "Day 5", "15th of Hammer", etc.)</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        {{ form.description(class="form-control", rows=5) }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="npc_ids" class="form-label">NPCs Involved</label>
+                        {{ form.npc_ids(class="form-select", size=6, multiple=true) }}
+                        <div class="form-text">Hold Ctrl (Cmd on Mac) to select multiple NPCs</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Event
+                    </button>
+                    <a href="{{ url_for('events.list', campaign_id=campaign.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Use clear, descriptive titles for easy reference</li>
+                    <li>Include key NPCs involved in the event</li>
+                    <li>Note important locations and items</li>
+                    <li>Consider consequences and follow-up events</li>
+                    <li>Add any relevant rewards or loot</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

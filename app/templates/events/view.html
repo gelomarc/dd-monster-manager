@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.title }} - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ event.title }}</h1>
+        <p class="text-muted">Campaign: {{ campaign.title }}</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('events.edit', campaign_id=campaign.id, id=event.id) }}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Edit Event
+        </a>
+        <a href="{{ url_for('events.list', campaign_id=campaign.id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Events
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    {% if event.event_date %}
+                    <dt class="col-sm-3">Date:</dt>
+                    <dd class="col-sm-9">{{ event.event_date }}</dd>
+                    {% endif %}
+
+                    {% if event.description %}
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9">{{ event.description|nl2br|safe }}</dd>
+                    {% endif %}
+
+                    {% if event.npcs.count() > 0 %}
+                    <dt class="col-sm-3">NPCs Involved:</dt>
+                    <dd class="col-sm-9">
+                        <div class="list-group">
+                            {% for npc in event.npcs %}
+                            <a href="{{ url_for('npcs.view', campaign_id=campaign.id, id=npc.id) }}" 
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ npc.name }}</strong>
+                                    {% if npc.role %}<br><small class="text-muted">{{ npc.role }}</small>{% endif %}
+                                </div>
+                                <span class="badge bg-{{ npc.attitude }}">{{ npc.attitude|title }}</span>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Notes</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-0">
+                    Created on {{ event.created_at.strftime('%Y-%m-%d') }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Reference</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    {% if event.event_date %}
+                    <li><strong>Date:</strong> {{ event.event_date }}</li>
+                    {% endif %}
+                    <li><strong>NPCs:</strong> {{ event.npcs.count() }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.badge.bg-friendly { background-color: #198754; }  /* Bootstrap success color */
+.badge.bg-neutral { background-color: #6c757d; }   /* Bootstrap secondary color */
+.badge.bg-hostile { background-color: #dc3545; }   /* Bootstrap danger color */
+</style>
+{% endblock %} 

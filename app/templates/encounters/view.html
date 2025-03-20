@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ encounter.name }} - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ encounter.name }}</h1>
+        <p class="text-muted">Campaign: {{ campaign.title }}</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('encounters.edit', campaign_id=campaign.id, id=encounter.id) }}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Edit Encounter
+        </a>
+        <a href="{{ url_for('campaigns.view', id=campaign.id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Campaign
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <!-- Encounter Details -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Details</h5>
+            </div>
+            <div class="card-body">
+                {% if encounter.description %}
+                <p>{{ encounter.description }}</p>
+                {% endif %}
+                
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Location:</dt>
+                    <dd class="col-sm-9">{{ encounter.location or 'Not specified' }}</dd>
+                    
+                    <dt class="col-sm-3">Difficulty:</dt>
+                    <dd class="col-sm-9">{{ encounter.difficulty or 'Not specified' }}</dd>
+                    
+                    {% if encounter.notes %}
+                    <dt class="col-sm-3">Notes:</dt>
+                    <dd class="col-sm-9">{{ encounter.notes }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <!-- Monsters Section -->
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Monsters</h5>
+                <a href="{{ url_for('encounters.add_monster', campaign_id=campaign.id, encounter_id=encounter.id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add Monster
+                </a>
+            </div>
+            <div class="card-body">
+                {% if encounter.monsters %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>CR</th>
+                                <th>HP</th>
+                                <th>AC</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for monster in encounter.monsters %}
+                            <tr>
+                                <td>{{ monster.name }}</td>
+                                <td>{{ monster.challenge_rating }}</td>
+                                <td>{{ monster.hit_points }}</td>
+                                <td>{{ monster.armor_class }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('monsters.view', id=monster.id) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <form action="{{ url_for('encounters.remove_monster', campaign_id=campaign.id, encounter_id=encounter.id, monster_id=monster.id) }}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to remove this monster?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No monsters added to this encounter yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Loot Section -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Loot</h5>
+                <a href="{{ url_for('loot.create', campaign_id=campaign.id, encounter_id=encounter.id) }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus me-1"></i>Add Loot
+                </a>
+            </div>
+            <div class="card-body">
+                {% if loot_items %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Quantity</th>
+                                <th>Value</th>
+                                <th>Rarity</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for loot in loot_items %}
+                            <tr>
+                                <td>
+                                    {{ loot.name }}
+                                    {% if loot.attunement %}
+                                    <span class="badge bg-info ms-1" title="Requires Attunement">
+                                        <i class="fas fa-magic"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ loot.quantity }}</td>
+                                <td>{{ loot.value or '-' }}</td>
+                                <td>
+                                    {% if loot.rarity %}
+                                    <span class="badge bg-{{ loot.rarity|lower|replace(' ', '-') }}">{{ loot.rarity }}</span>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('loot.edit', campaign_id=campaign.id, encounter_id=encounter.id, id=loot.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{{ url_for('loot.delete', campaign_id=campaign.id, encounter_id=encounter.id, id=loot.id) }}" method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this loot item?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted mb-0">No loot added to this encounter yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <!-- Combat Tips -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Combat Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Track initiative order</li>
+                    <li>Monitor monster HP and status effects</li>
+                    <li>Consider environmental factors</li>
+                    <li>Plan monster tactics</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-6">Total Monsters:</dt>
+                    <dd class="col-6">{{ encounter.monsters|length }}</dd>
+                    
+                    <dt class="col-6">Total Loot:</dt>
+                    <dd class="col-6">{{ loot_items|length }}</dd>
+                    
+                    {% if encounter.monsters %}
+                    <dt class="col-6">Average CR:</dt>
+                    <dd class="col-6">{{ "%.1f"|format(encounter.monsters|map(attribute='challenge_rating')|sum / encounter.monsters|length) }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.badge.bg-common { background-color: #b0b0b0; }
+.badge.bg-uncommon { background-color: #1a9850; }
+.badge.bg-rare { background-color: #2b83ba; }
+.badge.bg-very-rare { background-color: #7b3294; }
+.badge.bg-legendary { background-color: #d73027; }
+</style>
+{% endblock %} 

@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ 'Edit' if loot else 'Add' }} Loot - {{ encounter.name }} - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ 'Edit' if loot else 'Add' }} Loot</h1>
+        <p class="text-muted">
+            Campaign: {{ campaign.title }}<br>
+            Encounter: {{ encounter.name }}
+        </p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <form method="post">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Name *</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ loot.name if loot else '' }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ loot.description if loot else '' }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label">Quantity</label>
+                                <input type="number" class="form-control" id="quantity" name="quantity" value="{{ loot.quantity if loot else 1 }}" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="value" class="form-label">Value</label>
+                                <input type="text" class="form-control" id="value" name="value" value="{{ loot.value if loot else '' }}" placeholder="e.g., 100 gp">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="rarity" class="form-label">Rarity</label>
+                                <select class="form-select" id="rarity" name="rarity">
+                                    <option value="">-- Select Rarity --</option>
+                                    {% for rarity in ['Common', 'Uncommon', 'Rare', 'Very Rare', 'Legendary'] %}
+                                    <option value="{{ rarity }}" {{ 'selected' if loot and loot.rarity == rarity else '' }}>{{ rarity }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check mt-4">
+                                    <input class="form-check-input" type="checkbox" id="attunement" name="attunement" {{ 'checked' if loot and loot.attunement else '' }}>
+                                    <label class="form-check-label" for="attunement">
+                                        Requires Attunement
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="2">{{ loot.notes if loot else '' }}</textarea>
+                        <div class="form-text">Additional information about this loot item.</div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Loot
+                    </button>
+                    <a href="{{ url_for('loot.list', campaign_id=campaign.id, encounter_id=encounter.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Tips</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Use descriptive names for easy identification</li>
+                    <li>Include value in gold pieces (gp), silver pieces (sp), or copper pieces (cp)</li>
+                    <li>For magical items, specify rarity and attunement requirements</li>
+                    <li>Use notes for special conditions or restrictions</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

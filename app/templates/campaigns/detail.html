@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ campaign.title }}</h1>
+        <p class="text-muted">Created: {{ campaign.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+        {% if campaign.description %}
+            <p>{{ campaign.description }}</p>
+        {% endif %}
+    </div>
+    <div class="col-auto d-flex align-items-center">
+        <a href="{{ url_for('campaigns.list') }}" class="btn btn-secondary me-2">Back to List</a>
+        <form action="{{ url_for('campaigns.delete', id=campaign.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this campaign?');" class="d-inline">
+            <button type="submit" class="btn btn-danger">Delete Campaign</button>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Players</h2>
+                <a href="{{ url_for('players.create', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm">Add Player</a>
+            </div>
+            <div class="card-body">
+                {% if campaign.players.count() %}
+                    <div class="list-group">
+                        {% for player in campaign.players %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ player.name }}</h5>
+                                    <p class="mb-1">{{ player.character_class }} (Level {{ player.level }})</p>
+                                    {% if player.description %}
+                                        <small>{{ player.description }}</small>
+                                    {% endif %}
+                                </div>
+                                <form action="{{ url_for('players.delete', campaign_id=campaign.id, id=player.id) }}" method="post" onsubmit="return confirm('Delete this player?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No players added yet. Click "Add Player" to add one.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('players.list', campaign_id=campaign.id) }}" class="btn btn-outline-primary btn-sm">Manage Players</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">NPCs</h2>
+                <a href="{{ url_for('npcs.create', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm">Add NPC</a>
+            </div>
+            <div class="card-body">
+                {% if campaign.npcs.count() %}
+                    <div class="list-group">
+                        {% for npc in campaign.npcs %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ npc.name }}</h5>
+                                    {% if npc.role %}
+                                        <p class="mb-1">{{ npc.role }}</p>
+                                    {% endif %}
+                                    {% if npc.description %}
+                                        <small>{{ npc.description }}</small>
+                                    {% endif %}
+                                </div>
+                                <form action="{{ url_for('npcs.delete', campaign_id=campaign.id, id=npc.id) }}" method="post" onsubmit="return confirm('Delete this NPC?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No NPCs added yet. Click "Add NPC" to add one.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('npcs.list', campaign_id=campaign.id) }}" class="btn btn-outline-primary btn-sm">Manage NPCs</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Major Events</h2>
+                <a href="{{ url_for('events.create', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm">Add Event</a>
+            </div>
+            <div class="card-body">
+                {% if campaign.events.count() %}
+                    <div class="list-group">
+                        {% for event in campaign.events %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ event.title }}</h5>
+                                    {% if event.event_date %}
+                                        <p class="mb-1">Date: {{ event.event_date }}</p>
+                                    {% endif %}
+                                    {% if event.description %}
+                                        <small>{{ event.description }}</small>
+                                    {% endif %}
+                                </div>
+                                <form action="{{ url_for('events.delete', campaign_id=campaign.id, id=event.id) }}" method="post" onsubmit="return confirm('Delete this event?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No events added yet. Click "Add Event" to add one.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('events.list', campaign_id=campaign.id) }}" class="btn btn-outline-primary btn-sm">Manage Events</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2 class="h5 mb-0">Encounters</h2>
+                <a href="{{ url_for('encounters.create', campaign_id=campaign.id) }}" class="btn btn-primary btn-sm">Add Encounter</a>
+            </div>
+            <div class="card-body">
+                {% if campaign.encounters.count() %}
+                    <div class="list-group">
+                        {% for encounter in campaign.encounters %}
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1">{{ encounter.name }}</h5>
+                                    {% if encounter.difficulty %}
+                                        <p class="mb-1">Difficulty: {{ encounter.difficulty }}</p>
+                                    {% endif %}
+                                    {% if encounter.description %}
+                                        <small>{{ encounter.description }}</small>
+                                    {% endif %}
+                                </div>
+                                <form action="{{ url_for('encounters.delete', campaign_id=campaign.id, id=encounter.id) }}" method="post" onsubmit="return confirm('Delete this encounter?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No encounters added yet. Click "Add Encounter" to add one.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('encounters.list', campaign_id=campaign.id) }}" class="btn btn-outline-primary btn-sm">Manage Encounters</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

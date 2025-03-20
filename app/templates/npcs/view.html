@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ npc.name }} - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>{{ npc.name }}</h1>
+        <p class="text-muted">Campaign: {{ campaign.title }}</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('npcs.edit', campaign_id=campaign.id, id=npc.id) }}" class="btn btn-primary">
+            <i class="fas fa-edit me-2"></i>Edit NPC
+        </a>
+        <a href="{{ url_for('npcs.list', campaign_id=campaign.id) }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to NPCs
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Details</h5>
+                    <span class="badge bg-{{ npc.attitude }}">{{ npc.attitude|title }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-3">Role:</dt>
+                    <dd class="col-sm-9">{{ npc.role }}</dd>
+
+                    {% if npc.places_to_find %}
+                    <dt class="col-sm-3">Places to Find:</dt>
+                    <dd class="col-sm-9">{{ npc.places_to_find|nl2br|safe }}</dd>
+                    {% endif %}
+
+                    {% if npc.description %}
+                    <dt class="col-sm-3">Description:</dt>
+                    <dd class="col-sm-9">{{ npc.description|nl2br|safe }}</dd>
+                    {% endif %}
+
+                    {% if npc.equipment %}
+                    <dt class="col-sm-3">Equipment:</dt>
+                    <dd class="col-sm-9">{{ npc.equipment|nl2br|safe }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Notes</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-0">
+                    Created on {{ npc.created_at.strftime('%Y-%m-%d') }}
+                    {% if npc.updated_at != npc.created_at %}
+                    <br>Last updated on {{ npc.updated_at.strftime('%Y-%m-%d') }}
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Quick Reference</h5>
+            </div>
+            <div class="card-body">
+                <ul class="mb-0">
+                    <li>Attitude: <span class="badge bg-{{ npc.attitude }}">{{ npc.attitude|title }}</span></li>
+                    <li>Role: {{ npc.role }}</li>
+                    {% if npc.places_to_find %}
+                    <li>Location: {{ npc.places_to_find.split('\n')[0] }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+.badge.bg-friendly { background-color: #198754; }  /* Bootstrap success color */
+.badge.bg-neutral { background-color: #6c757d; }   /* Bootstrap secondary color */
+.badge.bg-hostile { background-color: #dc3545; }   /* Bootstrap danger color */
+</style>
+{% endblock %} 

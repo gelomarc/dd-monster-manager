@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ monster.name }} - Monster Statblock</title>
+    <style>
+        body {
+            font-family: 'Noto Serif', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f0e5;
+            color: #58180D;
+        }
+        
+        .statblock-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #FDF1DC;
+            border: 2px solid #DDD2B3;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .monster-name {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin: 0;
+            padding: 10px 0;
+            border-bottom: 2px solid #58180D;
+        }
+        
+        .subtitle {
+            font-style: italic;
+            text-align: center;
+            margin: 5px 0;
+        }
+        
+        .property-line {
+            margin: 8px 0;
+            border-bottom: 1px solid #DDD2B3;
+            padding-bottom: 4px;
+        }
+        
+        .property-line:last-child {
+            border-bottom: none;
+        }
+        
+        .property-name {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .section {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid #58180D;
+        }
+        
+        .abilities {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .ability {
+            flex: 1;
+            margin: 0 5px;
+        }
+        
+        .ability-name {
+            font-weight: bold;
+        }
+        
+        .ability-score {
+            font-size: 18px;
+        }
+        
+        .ability-modifier {
+            font-size: 14px;
+        }
+        
+        .trait-name, .action-name {
+            font-weight: bold;
+            font-style: italic;
+            margin-right: 5px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #58180D;
+            margin: 15px 0 10px 0;
+            padding-bottom: 3px;
+        }
+        
+        .footer {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        .description {
+            margin: 15px 0;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="statblock-container">
+        <h1 class="monster-name">{{ monster.name }}</h1>
+        <p class="subtitle">{{ monster.size }} {{ monster.type }}, {{ monster.alignment }}</p>
+        
+        <div class="section">
+            <div class="property-line">
+                <span class="property-name">Armor Class:</span>
+                <span>{{ monster.armor_class }}{% if monster.armor_type %} ({{ monster.armor_type }}){% endif %}</span>
+            </div>
+            <div class="property-line">
+                <span class="property-name">Hit Points:</span>
+                <span>{{ monster.hit_points }}{% if monster.hit_dice %} ({{ monster.hit_dice }}){% endif %}</span>
+            </div>
+            <div class="property-line">
+                <span class="property-name">Speed:</span>
+                <span>{{ monster.speed }}</span>
+            </div>
+        </div>
+        
+        <div class="abilities">
+            <div class="ability">
+                <div class="ability-name">STR</div>
+                <div class="ability-score">{{ monster.strength }}</div>
+                <div class="ability-modifier">({{ ((monster.strength - 10) // 2)|int }})</div>
+            </div>
+            <div class="ability">
+                <div class="ability-name">DEX</div>
+                <div class="ability-score">{{ monster.dexterity }}</div>
+                <div class="ability-modifier">({{ ((monster.dexterity - 10) // 2)|int }})</div>
+            </div>
+            <div class="ability">
+                <div class="ability-name">CON</div>
+                <div class="ability-score">{{ monster.constitution }}</div>
+                <div class="ability-modifier">({{ ((monster.constitution - 10) // 2)|int }})</div>
+            </div>
+            <div class="ability">
+                <div class="ability-name">INT</div>
+                <div class="ability-score">{{ monster.intelligence }}</div>
+                <div class="ability-modifier">({{ ((monster.intelligence - 10) // 2)|int }})</div>
+            </div>
+            <div class="ability">
+                <div class="ability-name">WIS</div>
+                <div class="ability-score">{{ monster.wisdom }}</div>
+                <div class="ability-modifier">({{ ((monster.wisdom - 10) // 2)|int }})</div>
+            </div>
+            <div class="ability">
+                <div class="ability-name">CHA</div>
+                <div class="ability-score">{{ monster.charisma }}</div>
+                <div class="ability-modifier">({{ ((monster.charisma - 10) // 2)|int }})</div>
+            </div>
+        </div>
+        
+        <div class="section">
+            {% if monster.strength_save or monster.dexterity_save or monster.constitution_save or monster.intelligence_save or monster.wisdom_save or monster.charisma_save %}
+            <div class="property-line">
+                <span class="property-name">Saving Throws:</span>
+                <span>
+                    {% if monster.strength_save %}Str +{{ monster.strength_save }}{% endif %}
+                    {% if monster.dexterity_save %}{% if monster.strength_save %}, {% endif %}Dex +{{ monster.dexterity_save }}{% endif %}
+                    {% if monster.constitution_save %}{% if monster.strength_save or monster.dexterity_save %}, {% endif %}Con +{{ monster.constitution_save }}{% endif %}
+                    {% if monster.intelligence_save %}{% if monster.strength_save or monster.dexterity_save or monster.constitution_save %}, {% endif %}Int +{{ monster.intelligence_save }}{% endif %}
+                    {% if monster.wisdom_save %}{% if monster.strength_save or monster.dexterity_save or monster.constitution_save or monster.intelligence_save %}, {% endif %}Wis +{{ monster.wisdom_save }}{% endif %}
+                    {% if monster.charisma_save %}{% if monster.strength_save or monster.dexterity_save or monster.constitution_save or monster.intelligence_save or monster.wisdom_save %}, {% endif %}Cha +{{ monster.charisma_save }}{% endif %}
+                </span>
+            </div>
+            {% endif %}
+            
+            {% if monster.skills %}
+            <div class="property-line">
+                <span class="property-name">Skills:</span>
+                <span>{{ monster.skills }}</span>
+            </div>
+            {% endif %}
+            
+            {% if monster.damage_vulnerabilities %}
+            <div class="property-line">
+                <span class="property-name">Damage Vulnerabilities:</span>
+                <span>{{ monster.damage_vulnerabilities }}</span>
+            </div>
+            {% endif %}
+            
+            {% if monster.damage_resistances %}
+            <div class="property-line">
+                <span class="property-name">Damage Resistances:</span>
+                <span>{{ monster.damage_resistances }}</span>
+            </div>
+            {% endif %}
+            
+            {% if monster.damage_immunities %}
+            <div class="property-line">
+                <span class="property-name">Damage Immunities:</span>
+                <span>{{ monster.damage_immunities }}</span>
+            </div>
+            {% endif %}
+            
+            {% if monster.condition_immunities %}
+            <div class="property-line">
+                <span class="property-name">Condition Immunities:</span>
+                <span>{{ monster.condition_immunities }}</span>
+            </div>
+            {% endif %}
+            
+            {% if monster.senses %}
+            <div class="property-line">
+                <span class="property-name">Senses:</span>
+                <span>{{ monster.senses }}</span>
+            </div>
+            {% endif %}
+            
+            {% if monster.languages %}
+            <div class="property-line">
+                <span class="property-name">Languages:</span>
+                <span>{{ monster.languages }}</span>
+            </div>
+            {% endif %}
+            
+            <div class="property-line">
+                <span class="property-name">Challenge:</span>
+                <span>{{ monster.challenge_rating }}{% if monster.xp %} ({{ monster.xp }} XP){% endif %}</span>
+            </div>
+        </div>
+        
+        {% if monster.special_abilities %}
+        <div class="section">
+            <h3 class="section-title">Special Abilities</h3>
+            {{ monster.special_abilities|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.actions %}
+        <div class="section">
+            <h3 class="section-title">Actions</h3>
+            {{ monster.actions|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.bonus_actions %}
+        <div class="section">
+            <h3 class="section-title">Bonus Actions</h3>
+            {{ monster.bonus_actions|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.reactions %}
+        <div class="section">
+            <h3 class="section-title">Reactions</h3>
+            {{ monster.reactions|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.legendary_actions %}
+        <div class="section">
+            <h3 class="section-title">Legendary Actions</h3>
+            {{ monster.legendary_actions|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.mythic_actions %}
+        <div class="section">
+            <h3 class="section-title">Mythic Actions</h3>
+            {{ monster.mythic_actions|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.lair_actions %}
+        <div class="section">
+            <h3 class="section-title">Lair Actions</h3>
+            {{ monster.lair_actions|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        {% if monster.description %}
+        <div class="description">
+            {{ monster.description|nl2br|safe }}
+        </div>
+        {% endif %}
+        
+        <div class="footer">
+            <p>DD Monsters Campaign Manager - Generated by {{ campaign.owner.username }}</p>
+        </div>
+    </div>
+</body>
+</html> 

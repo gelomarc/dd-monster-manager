@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Players - {{ campaign.title }} - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1>Players - {{ campaign.title }}</h1>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('campaigns.detail', id=campaign.id) }}" class="btn btn-secondary me-2">Back to Campaign</a>
+        <a href="{{ url_for('players.create', campaign_id=campaign.id) }}" class="btn btn-success">Add Player</a>
+    </div>
+</div>
+
+<div class="row">
+    {% if players %}
+        {% for player in players %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">{{ player.name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ player.character_class }} (Level {{ player.level }})</p>
+                        {% if player.description %}
+                            <p class="card-text">{{ player.description }}</p>
+                        {% endif %}
+                        <p class="text-muted small">Added: {{ player.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="card-footer">
+                        <form action="{{ url_for('players.delete', campaign_id=campaign.id, id=player.id) }}" method="post" onsubmit="return confirm('Are you sure you want to delete this player?');" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="col">
+            <div class="alert alert-info">
+                <p>No players added yet. Click "Add Player" to get started.</p>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

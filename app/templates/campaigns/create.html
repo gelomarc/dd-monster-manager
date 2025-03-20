@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Campaign - DD Monsters{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2>Add New Campaign</h2>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="4"></textarea>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('campaigns.list') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success">Create Campaign</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
